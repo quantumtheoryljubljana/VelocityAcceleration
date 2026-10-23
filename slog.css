@@ -51,7 +51,7 @@ input[aria-invalid=true]{border-color:#cf3541;outline:1px solid #cf3541}
 .time-control input{width:92px;font-size:15px;font-weight:500;color:var(--text)}
 .unit{font-size:11px;color:var(--muted);white-space:nowrap}
 .compact-control select{padding:5px 7px;font-size:13px;color:var(--text)}
-.presets-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:9px 18px;margin-top:12px}
+.presets-row{display:flex;flex-direction:column;align-items:flex-start;gap:9px;margin-top:12px}
 .motion-presets,.shape-presets{display:flex;gap:6px;flex-wrap:wrap}
 .presets-row button{font-size:12px;padding:7px 10px}
 .parameter-grid{display:grid;grid-template-columns:repeat(var(--count,5),minmax(0,1fr));gap:13px 23px;align-items:center;padding:15px 0}
