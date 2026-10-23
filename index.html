@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Interaktivni prikaz eliptičnega gibanja: lega, hitrost, tangencialni in normalni pospešek ter položajni kot.">
-  <title>Eliptično gibanje</title>
+  <title>Razumevanje časovne odvisnosti vektorja hitrosti in pospeška v ravnini</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="slog.css">
   <script src="simulacija.js" defer></script>
@@ -13,7 +13,7 @@
 <!-- Vse tri datoteke shranite v isto mapo in odprite index.html. Strežnik in internetna povezava nista potrebna. -->
 <main class="app">
   <header class="app-header">
-    <div><h1 data-i18n="title">Eliptično gibanje</h1><p data-i18n="subtitle">Pot, velikosti in položajni kot.</p></div>
+    <div><h1 data-i18n="title">Razumevanje časovne odvisnosti vektorja hitrosti in pospeška v ravnini</h1></div>
     <div class="header-actions">
       <div class="language-switch" role="group" aria-label="Jezik" data-i18n-aria="language">
         <button type="button" data-language="sl" lang="sl" aria-label="Slovenščina" aria-pressed="true" class="active">SL</button>
@@ -25,7 +25,7 @@
 
   <section class="plots-grid" aria-label="Simulacija" data-i18n-aria="simulation">
     <article class="panel trajectory-panel">
-      <div class="panel-heading"><h2 data-i18n="pathTitle">Gibanje v ravnini</h2><p data-i18n="pathDescription">Enako merilo na obeh oseh · x, y v metrih</p></div>
+      <div class="panel-heading"><h2 data-i18n="pathTitle">Gibanje v ravnini</h2></div>
       <canvas id="pathCanvas" class="scene" role="img" aria-label="Eliptična pot z vektorjema hitrosti in pospeška"></canvas>
       <div class="readout path-readout">
         <div class="reading"><span class="reading-label">x</span><output id="valueX" class="reading-value"></output></div>
@@ -36,7 +36,7 @@
     </article>
 
     <article class="panel magnitudes-panel">
-      <div class="panel-heading"><h2 data-i18n="magnitudesTitle">Velikosti vektorjev</h2><p data-i18n="magnitudesDescription">Tri merila · skupna časovna os</p></div>
+      <div class="panel-heading"><h2 data-i18n="magnitudesTitle">Velikosti vektorjev</h2></div>
       <canvas id="magnitudesCanvas" class="scene" role="img" aria-label="Velikosti krajevnega vektorja, hitrosti in pospeška v odvisnosti od časa"></canvas>
       <div class="readout magnitude-readout">
         <div class="reading"><span class="reading-label position">|r|</span><output id="valueR" class="reading-value"></output></div>
@@ -46,7 +46,7 @@
     </article>
 
     <article class="panel angle-panel">
-      <div class="panel-heading"><h2 data-i18n="angleTitle">Položajni kot in odvoda</h2><p data-i18n="angleDescription">φ, dφ/dt in d²φ/dt² · skupna časovna os</p></div>
+      <div class="panel-heading"><h2 data-i18n="angleTitle">Položajni kot in odvoda</h2></div>
       <canvas id="angleCanvas" class="scene" role="img" aria-label="Zvezni položajni kot v odvisnosti od časa"></canvas>
       <div class="readout angle-readout">
         <div class="reading"><span class="reading-label">φ</span><output id="valuePhi" class="reading-value"></output></div>

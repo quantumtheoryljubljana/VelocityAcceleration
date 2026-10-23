@@ -32,6 +32,7 @@
     sl:{title:'Eliptično gibanje',subtitle:'Pot, velikosti in položajni kot.',pathTitle:'Gibanje v ravnini',pathDescription:'Enako merilo na obeh oseh · x, y v metrih',magnitudesTitle:'Velikosti vektorjev',magnitudesDescription:'Tri merila · skupna časovna os',angleTitle:'Položajni kot φ',angleDescription:'Od pozitivne osi x · z upoštevanimi obrati',tangential:'Tangencialni pospešek',normal:'Normalni pospešek',position:'Krajevni vektor r',velocity:'Hitrost v',acceleration:'Pospešek a',tangentialLegend:'Tangencialni a∥',normalLegend:'Normalni a⊥',continuousAngle:'Zvezni kot φ',withinTurn:'Znotraj enega obrata',future:'Črtkano: prihodnji potek',play:'Zaženi',pause:'Ustavi',reset:'Na začetek',step:'Korak',time:'Čas',playback:'Predvajanje',uniform:'Konstantna frekvenca',uniformCircle:'Konstantna kotna hitrost',positive:'Pozitivni kotni pospešek',negative:'Negativni kotni pospešek',positivePhase:'Naraščajoča frekvenca',negativePhase:'Padajoča frekvenca',exponential:'Eksponentno ustavljanje',ellipse:'Elipsa',circle:'Krog · rₓ = rᵧ',radiusX:'Polos rₓ',radiusY:'Polos rᵧ',initialRate:'Začetna frekvenca ω₀',initialAngularRate:'Začetna kotna hitrost ω₀',phaseAlpha:'Sprememba frekvence α',angularAlpha:'Kotni pospešek α',tau:'Čas ustavljanja τ',initialPhase:'Začetna faza θ₀',components:'Razcep pospeška',axes:'Koordinatni sistem',trail:'Sled gibanja',angleUnits:'Kot',paused:'Ustavljeno',running:'Animacija teče',invalid:'Vnesite končno število v dovoljenem območju.',resetStatus:'Čas je ponastavljen na nič.',undefined:'Ni določen pri ničelni hitrosti',undefinedShort:'Ni določen',pathAlt:'Eliptična pot s krajevnim vektorjem, hitrostjo in pospeškom.',magnitudeAlt:'Velikosti krajevnega vektorja, hitrosti in pospeška skozi čas; ločena merila.',angleAlt:'Položajni kot od pozitivne osi x skozi čas, brez preskoka po polnem obratu.',atRest:'v = 0: smer tangente ni določena'}
   };
   Object.assign(strings.sl,{
+    title:'Razumevanje časovne odvisnosti vektorja hitrosti in pospeška v ravnini',
     angleTitle:'Položajni kot in odvoda',angleDescription:'φ, dφ/dt in d²φ/dt² · skupna časovna os',
     lineX:'Nihanje x · rᵧ = 0',lineY:'Nihanje y · rₓ = 0',resetView:'Obnovi pogled',
     componentPositionNote:'Pri razcepu so prikazane komponenti pospeška in njuna vsota.',
@@ -41,7 +42,7 @@
     description:'Interaktivni prikaz eliptičnega gibanja: lega, hitrost, tangencialni in normalni pospešek ter položajni kot.'
   });
   strings.en={
-    title:'Elliptical motion',subtitle:'Trajectory, magnitudes and polar angle.',
+    title:'Understanding the time dependence of velocity and acceleration vectors in a plane',subtitle:'Trajectory, magnitudes and polar angle.',
     pathTitle:'Motion in a plane',pathDescription:'Equal scale on both axes · x, y in metres',
     magnitudesTitle:'Vector magnitudes',magnitudesDescription:'Three scales · shared time axis',
     angleTitle:'Polar angle and derivatives',angleDescription:'φ, dφ/dt and d²φ/dt² · shared time axis',
@@ -323,15 +324,18 @@
   function drawPath(s,data,timestamp){
     const {ctx,w,h}=prepare($('pathCanvas'));
     const descriptors=[];
+    let componentRectangle=null;
     const push=(from,vector,factor,color,name,dashed=false)=>{
       const id=name==='r'?'position':name==='v'?'velocity':color===colors.tangent?'tangent':color===colors.normal?'normal':'acceleration';
       descriptors.push({id,from,to:add(from,mul(vector,factor)),vector,factor,color,name,dashed});
     };
     if(display.showComponents){
       if(s.frenetDefined){
-        const corner=add(s.r,mul(s.aParallel,VECTOR_SCALES.a));
+        // Obe komponenti izhajata iz trenutne lege telesa.
+        // Nasprotni stranici pravokotnika sta samo črtkani pomožni črti.
+        componentRectangle={origin:s.r,tangentTip:add(s.r,mul(s.aParallel,VECTOR_SCALES.a)),normalTip:add(s.r,mul(s.aNormal,VECTOR_SCALES.a)),resultantTip:add(s.r,mul(s.a,VECTOR_SCALES.a))};
         push(s.r,s.aParallel,VECTOR_SCALES.a,colors.tangent,'a∥');
-        push(corner,s.aNormal,VECTOR_SCALES.a,colors.normal,'a⊥');
+        push(s.r,s.aNormal,VECTOR_SCALES.a,colors.normal,'a⊥');
       }
       push(s.r,s.a,VECTOR_SCALES.a,colors.a,'a',true);
     }else{
@@ -339,7 +343,7 @@
       push(s.r,s.v,VECTOR_SCALES.v,colors.v,'v');
       push(s.r,s.a,VECTOR_SCALES.a,colors.a,'a');
     }
-    // Rezerviran rob vključuje konice, napise in črtkano vzporedno vsoto.
+    // Rezerviran rob vključuje vse štiri vogale, konice in napise.
     let boundX=Math.max(params.rx,.3),boundY=Math.max(params.ry,.3);
     for(const item of descriptors)for(const p of [item.from,item.to]){boundX=Math.max(boundX,Math.abs(p[0]));boundY=Math.max(boundY,Math.abs(p[1]));}
     const fit=Math.min((w-88)/(2*boundX),(h-82)/(2*boundY));
@@ -372,7 +376,14 @@
       for(let i=0;i<=100;i++)trail.push(screen(stateAt(time-duration+duration*i/100).r));
       stroke(ctx,trail,'#186e9f',4);
     }
-    const particle=screen(s.r),labels=[],arrowMetrics=[];
+    const particle=screen(s.r),labels=[],arrowMetrics=[],guideMetrics=[];
+    const rectangle=componentRectangle?Object.fromEntries(Object.entries(componentRectangle).map(([key,point])=>[key,screen(point)])):null;
+    if(rectangle&&mag(s.aParallel)*scale*VECTOR_SCALES.a>=.25&&mag(s.aNormal)*scale*VECTOR_SCALES.a>=.25){
+      for(const from of [rectangle.tangentTip,rectangle.normalTip]){
+        stroke(ctx,[from,rectangle.resultantTip],'#95a4b7',1.2,[4,4]);
+        guideMetrics.push({from,to:rectangle.resultantTip,dashed:true});
+      }
+    }
     if(!display.showComponents&&s.phiDefined){
       const arcRadius=Math.min(27,Math.max(15,Math.max(params.rx,params.ry)*scale*.12));
       if(s.wrappedPhi>1e-5){
@@ -382,19 +393,8 @@
       labels.push({id:'phi',text:'φ',anchor:[origin[0]+arcRadius+12,origin[1]-13],color:colors.phi,font:'italic 14px Georgia, serif'});
     }
     for(const item of descriptors){
-      let a=screen(item.from),b=screen(item.to);
+      const a=screen(item.from),b=screen(item.to);
       const length=Math.hypot(b[0]-a[0],b[1]-a[1]);
-      // Če komponenta sovpada z vsoto, slednjo vzporedno odmaknemo za 7 px.
-      // Dolžina in smer vsote ostaneta nespremenjeni; tanki črti kažeta pravi krajišči.
-      if(item.dashed&&length>.25&&s.frenetDefined){
-        const ratio=Math.min(mag(s.aParallel),mag(s.aNormal))/Math.max(s.acceleration,1e-15);
-        const mix=Math.max(0,Math.min(1,1-ratio/.15)),amount=7*mix*mix*(3-2*mix);
-        const direction=params.ry===0?[0,-1]:params.rx===0?[1,0]:[-(b[1]-a[1])/length,(b[0]-a[0])/length];
-        const shift=mul(direction,amount);
-        const shiftedA=add(a,shift),shiftedB=add(b,shift);
-        stroke(ctx,[a,shiftedA],'#bdc7d3',1);stroke(ctx,[b,shiftedB],'#bdc7d3',1);
-        a=shiftedA;b=shiftedB;
-      }
       if(length>=.25){
         stroke(ctx,[a,b],item.color,item.dashed?1.9:2.6,item.dashed?[5,4]:[]);
         const ux=(b[0]-a[0])/length,uy=(b[1]-a[1])/length,head=Math.min(10,length*.28);
@@ -406,7 +406,7 @@
       // Ime oznake se ob prehodu skozi ničlo ne spreminja.
       // Skupni pospešek je v obeh načinih označen z rdečim a.
       const text=item.dashed?'a':item.name;
-      labels.push({id:item.id,text,anchor:display.showComponents?[(a[0]+b[0])/2,(a[1]+b[1])/2]:b,color:item.color,font:'600 14px system-ui, sans-serif'});
+      labels.push({id:item.id,text,anchor:display.showComponents&&item.id!=='acceleration'?[(a[0]+b[0])/2,(a[1]+b[1])/2]:b,color:item.color,font:'600 14px system-ui, sans-serif'});
       arrowMetrics.push({name:item.name,from:a,to:b,lengthPx:length,physicalMagnitude,factor:item.factor,dashed:item.dashed});
     }
     ctx.beginPath();ctx.arc(particle[0],particle[1],5.6,0,TAU);ctx.fillStyle='#e53643';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.8;ctx.stroke();
@@ -487,7 +487,7 @@
     }
     labelFrame={context,time,timestamp};
     if(display.showComponents&&!s.frenetDefined)label(ctx,tr('atRest'),w/2,h-10,colors.muted,'center','10px system-ui, sans-serif');
-    lastView={width:w,height:h,pixelsPerMetre:scale,velocityPixelsPerUnit:scale*VECTOR_SCALES.v,accelerationPixelsPerUnit:scale*VECTOR_SCALES.a,arrows:arrowMetrics,labels:labelMetrics};
+    lastView={width:w,height:h,particle,pixelsPerMetre:scale,velocityPixelsPerUnit:scale*VECTOR_SCALES.v,accelerationPixelsPerUnit:scale*VECTOR_SCALES.a,arrows:arrowMetrics,labels:labelMetrics,componentRectangle:rectangle,guides:guideMetrics};
   }
 
   function gridTime(ctx,rect,data,withLabels=true){
