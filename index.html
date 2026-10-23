@@ -3,112 +3,94 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Interaktivni prikaz eliptičnega gibanja: lega, hitrost, tangencialni in normalni pospešek ter položajni kot.">
-  <title>Razumevanje časovne odvisnosti vektorja hitrosti in pospeška v ravnini</title>
+  <meta name="description" content="Interaktivna simulacija gibanja v premaknjenem in vrtečem se koordinatnem sistemu v dveh razsežnostih.">
+  <title>Ravninske transformacije koordinatnih sistemov</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="slog.css">
   <script src="simulacija.js" defer></script>
 </head>
 <body>
-<!-- Vse tri datoteke shranite v isto mapo in odprite index.html. Strežnik in internetna povezava nista potrebna. -->
+<!-- Vse tri datoteke shranite v isto mapo in odprite index.html. Internetna povezava in strežnik nista potrebna. -->
 <main class="app">
   <header class="app-header">
-    <div><h1 data-i18n="title">Razumevanje časovne odvisnosti vektorja hitrosti in pospeška v ravnini</h1></div>
-    <div class="header-actions">
-      <div class="language-switch" role="group" aria-label="Jezik" data-i18n-aria="language">
-        <button type="button" data-language="sl" lang="sl" aria-label="Slovenščina" aria-pressed="true" class="active">SL</button>
-        <button type="button" data-language="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
-      </div>
+    <h1 data-i18n="title">Ravninske transformacije koordinatnih sistemov</h1>
+    <div class="header-tools">
       <span class="state-badge" id="stateBadge" role="status">Ustavljeno</span>
+      <div class="language-switch" role="group" aria-label="Jezik" data-i18n-aria="language">
+        <button type="button" data-language="sl" class="active" aria-pressed="true" aria-label="Slovenščina">SL</button>
+        <button type="button" data-language="en" aria-pressed="false" aria-label="English">EN</button>
+      </div>
     </div>
   </header>
 
-  <section class="plots-grid" aria-label="Simulacija" data-i18n-aria="simulation">
-    <article class="panel trajectory-panel">
-      <div class="panel-heading"><h2 data-i18n="pathTitle">Gibanje v ravnini</h2></div>
-      <canvas id="pathCanvas" class="scene" role="img" aria-label="Eliptična pot z vektorjema hitrosti in pospeška"></canvas>
-      <div class="readout path-readout">
-        <div class="reading"><span class="reading-label">x</span><output id="valueX" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label">y</span><output id="valueY" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label" data-i18n="tangential">Tangencialni pospešek</span><output id="valueTangential" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label" data-i18n="normal">Normalni pospešek</span><output id="valueNormal" class="reading-value"></output></div>
-      </div>
+  <section class="plots-grid" aria-label="Trije pogledi istega gibanja" data-i18n-aria="threeViews">
+    <article class="panel alice-panel">
+      <div class="panel-heading"><h2><span class="observer-dot alice" aria-hidden="true"></span><span data-i18n="aliceTitle">Alice (inercialni sistem S)</span></h2></div>
+      <canvas id="aliceCanvas" class="scene" role="img" aria-label="Lega, hitrost in pospešek telesa v Alicinem inercialnem sistemu" data-i18n-aria="aliceAlt"></canvas>
     </article>
-
-    <article class="panel magnitudes-panel">
-      <div class="panel-heading"><h2 data-i18n="magnitudesTitle">Velikosti vektorjev</h2></div>
-      <canvas id="magnitudesCanvas" class="scene" role="img" aria-label="Velikosti krajevnega vektorja, hitrosti in pospeška v odvisnosti od časa"></canvas>
-      <div class="readout magnitude-readout">
-        <div class="reading"><span class="reading-label position">|r|</span><output id="valueR" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label velocity">|v|</span><output id="valueV" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label acceleration">|a|</span><output id="valueA" class="reading-value"></output></div>
-      </div>
+    <article class="panel bob-panel">
+      <div class="panel-heading"><h2><span class="observer-dot bob" aria-hidden="true"></span><span data-i18n="bobTitle">Bob (neinercialni sistem S′)</span></h2></div>
+      <canvas id="bobCanvas" class="scene" role="img" aria-label="Isto telo, kot ga vidi Bob v svojem koordinatnem sistemu" data-i18n-aria="bobAlt"></canvas>
     </article>
-
-    <article class="panel angle-panel">
-      <div class="panel-heading"><h2 data-i18n="angleTitle">Položajni kot in odvoda</h2></div>
-      <canvas id="angleCanvas" class="scene" role="img" aria-label="Zvezni položajni kot v odvisnosti od časa"></canvas>
-      <div class="readout angle-readout">
-        <div class="reading"><span class="reading-label">φ</span><output id="valuePhi" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label">dφ/dt</span><output id="valuePhiDot" class="reading-value"></output></div>
-        <div class="reading"><span class="reading-label">d²φ/dt²</span><output id="valuePhiDDot" class="reading-value"></output></div>
-      </div>
+    <article class="panel frames-panel">
+      <div class="panel-heading"><h2 data-i18n="framesTitle">Premikanje Bobovega sistema v koordinatnem sistemu Alice</h2></div>
+      <canvas id="framesCanvas" class="scene" role="img" aria-label="Bobovo koordinatno izhodišče in vrteči se osi v Alicinem sistemu z vektorji r, R in r′" data-i18n-aria="framesAlt"></canvas>
     </article>
   </section>
 
-  <div class="visual-key">
-    <div class="legend" aria-label="Legenda" data-i18n-aria="legend">
-      <span id="positionKey"><i class="swatch position"></i><span data-i18n="position">Krajevni vektor r</span></span>
-      <span id="velocityKey"><i class="swatch velocity"></i><span data-i18n="velocity">Hitrost v</span></span>
-      <span id="accelerationKey" class="acceleration" aria-label="Skupni pospešek a" data-i18n-aria="totalAcceleration"><i class="swatch acceleration"></i><span id="accelerationLegend">a</span></span>
-      <span class="component-key" hidden><i class="swatch tangential"></i><span data-i18n="tangentialLegend">Tangencialni a∥</span></span>
-      <span class="component-key" hidden><i class="swatch normal"></i><span data-i18n="normalLegend">Normalni a⊥</span></span>
-    </div>
-    <span class="plot-key" data-i18n="future">Črtkano: prihodnji potek</span>
-  </div>
-
-  <section class="workspace-controls" aria-label="Nastavitve" data-i18n-aria="settings">
+  <section class="workspace-controls" aria-label="Ukazi in nastavitve" data-i18n-aria="controls">
     <div class="toolbar">
       <div class="playback">
         <button id="play" class="action" type="button" aria-pressed="false"><span id="playIcon" aria-hidden="true">▶</span><span id="playText">Zaženi</span></button>
         <button id="reset" type="button" data-i18n="reset">Na začetek</button>
-        <button id="step" type="button" data-i18n="step" title="+1/30 s">Korak</button>
-        <button id="resetView" type="button" data-i18n="resetView">Obnovi pogled</button>
+        <button id="step" type="button" data-i18n="step">Korak +0,05 s</button>
+        <button id="restoreDefaults" type="button" data-i18n="restoreDefaults">Začetne nastavitve</button>
       </div>
-      <label class="time-control" for="time"><span data-i18n="time">Čas</span><input id="time" type="number" min="0" step="0.1" value="0" inputmode="decimal"><span class="unit">s</span></label>
-      <label class="compact-control" for="playbackSpeed"><span data-i18n="playback">Predvajanje</span><select id="playbackSpeed"><option value="0.25">0,25×</option><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+      <label class="compact-control" for="time"><span data-i18n="time">Čas</span> <input id="time" type="number" value="0" min="0" step="0.05" inputmode="decimal"> <span class="unit">s</span></label>
+      <label class="compact-control" for="playbackSpeed"><span data-i18n="playback">Predvajanje</span> <select id="playbackSpeed"><option value="0.25">0,25×</option><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
     </div>
 
-
-    <div class="presets-row">
-      <div class="motion-presets button-group" role="group" aria-label="Časovni potek" data-i18n-aria="motionLaw">
-        <button type="button" data-motion="uniform" class="active" aria-pressed="true" data-i18n="uniform">Konstantna frekvenca</button>
-        <button type="button" data-motion="positive" aria-pressed="false" data-i18n="positive">Pozitivni kotni pospešek</button>
-        <button type="button" data-motion="negative" aria-pressed="false" data-i18n="negative">Negativni kotni pospešek</button>
-        <button type="button" data-motion="exponential" aria-pressed="false" data-i18n="exponential">Eksponentno ustavljanje</button>
-      </div>
-      <div class="shape-presets button-group" role="group" aria-label="Pot" data-i18n-aria="trajectory">
-        <button type="button" id="ellipsePreset" class="active" aria-pressed="true" data-i18n="ellipse">Elipsa</button>
-        <button type="button" id="circlePreset" aria-pressed="false" data-i18n="circle" title="Izenači polosi" data-i18n-title="equalAxes">Krog · rₓ = rᵧ</button>
-        <button type="button" id="lineXPreset" aria-pressed="false" data-i18n="lineX">Nihanje x · rᵧ = 0</button>
-        <button type="button" id="lineYPreset" aria-pressed="false" data-i18n="lineY">Nihanje y · rₓ = 0</button>
-      </div>
+    <div class="examples" role="group" aria-label="Pripravljeni primeri" data-i18n-aria="examples"><span data-i18n="examples">Primeri</span>
+      <button type="button" data-example="translation" data-i18n="exampleTranslation">Enakomerna translacija</button>
+      <button type="button" data-example="acceleration" data-i18n="exampleAcceleration">Pospešena translacija</button>
+      <button type="button" data-example="rotation" data-i18n="exampleRotation">Enakomerno vrtenje</button>
+      <button type="button" data-example="euler" data-i18n="exampleEuler">Pospešeno vrtenje</button>
+      <button type="button" data-example="combined" data-i18n="exampleCombined">Kombinirano gibanje</button>
     </div>
 
-    <div id="parameterGrid" class="parameter-grid"></div>
+    <div class="settings-grid">
+      <section class="settings-section"><h3><span class="observer-dot alice"></span><span data-i18n="aliceSettings">Gibanje telesa pri Alice</span></h3>
+        <label class="select-label" for="aliceMode" data-i18n="motionType">Vrsta gibanja</label>
+        <select id="aliceMode"><option value="rest" data-i18n="motionRest">Mirovanje</option><option value="linear" data-i18n="motionLinear">Enakomerno premočrtno gibanje</option><option value="circle" selected data-i18n="motionCircle">Enakomerno kroženje</option><option value="oscX" data-i18n="motionOscX">Nihanje vzdolž osi x</option><option value="oscY" data-i18n="motionOscY">Nihanje vzdolž osi y</option></select>
+        <div class="parameter-grid" id="aliceParameters"></div>
+      </section>
+      <section class="settings-section"><h3><span class="observer-dot translation"></span><span data-i18n="translationSettings">Premik Bobovega izhodišča</span></h3>
+        <label class="select-label" for="translationMode" data-i18n="translationType">Translacija glede na Alice</label>
+        <select id="translationMode"><option value="offset" data-i18n="translationOffset">Stalen premik izhodišča</option><option value="velocity" selected data-i18n="translationVelocity">Konstantna hitrost</option><option value="acceleration" data-i18n="translationAcceleration">Konstanten pospešek</option></select>
+        <div class="parameter-grid" id="translationParameters"></div>
+      </section>
+      <section class="settings-section"><h3><span class="observer-dot bob"></span><span data-i18n="rotationSettings">Zasuk Bobovih osi</span></h3>
+        <label class="select-label" for="rotationMode" data-i18n="rotationType">Vrtenje glede na Alice</label>
+        <select id="rotationMode"><option value="angle" data-i18n="rotationAngle">Stalen kot</option><option value="velocity" selected data-i18n="rotationVelocity">Konstantna kotna hitrost</option><option value="acceleration" data-i18n="rotationAcceleration">Konstanten kotni pospešek</option></select>
+        <div class="parameter-grid" id="rotationParameters"></div>
+        <p class="direction-note" data-i18n="directionNote">Pozitiven kot pomeni zasuk v nasprotni smeri urnega kazalca. Za vzporedne osi izberite stalen kot θ₀ = 0°.</p>
+      </section>
+    </div>
 
     <div class="display-controls">
-      <button type="button" class="toggle" id="showPosition" aria-pressed="false" data-i18n="position">Krajevni vektor r</button>
-      <button type="button" class="toggle" id="showComponents" aria-pressed="false" data-i18n="components">Razcep pospeška</button>
-      <button type="button" class="toggle active" id="showAxes" aria-pressed="true" data-i18n="axes">Koordinatni sistem</button>
-      <button type="button" class="toggle" id="showTrail" aria-pressed="false" data-i18n="trail">Sled gibanja</button>
-      <div class="angle-unit" role="group" aria-label="Kotne enote" data-i18n-aria="angularUnits"><span data-i18n="angleUnits">Kot</span><button type="button" data-angle-unit="deg" class="active" aria-pressed="true">°</button><button type="button" data-angle-unit="rad" aria-pressed="false">rad</button></div>
+      <button type="button" class="toggle" id="showPosition" aria-pressed="false" data-i18n="showPosition">Krajevna vektorja r, r′</button>
+      <button type="button" class="toggle active" id="showVelocity" aria-pressed="true" data-i18n="showVelocity">Hitrosti v, v′</button>
+      <button type="button" class="toggle active" id="showAcceleration" aria-pressed="true" data-i18n="showAcceleration">Pospeška a, a′</button>
+      <button type="button" class="toggle" id="showComponents" aria-pressed="false" data-i18n="showComponents">Razcep pospeška pri Bobu</button>
+      <button type="button" class="toggle active" id="showPaths" aria-pressed="true" data-i18n="showPaths">Poti gibanja</button>
+      <button type="button" class="toggle active" id="showAxes" aria-pressed="true" data-i18n="showAxes">Koordinatna mreža</button>
+      <button type="button" class="toggle" id="sameScale" aria-pressed="false" data-i18n="sameScale">Isto merilo vseh prikazov</button>
     </div>
   </section>
 
   <p id="status" class="sr-only" aria-live="polite"></p>
+  <footer><a href="https://quantum-theory.fmf.uni-lj.si/" target="_blank" rel="noopener noreferrer">quantum-theory.fmf.uni-lj.si</a></footer>
   <noscript>Za simulacijo omogočite JavaScript.</noscript>
 </main>
-<div class="qt-footer"><a href="https://quantum-theory.fmf.uni-lj.si/" target="_blank" rel="noopener noreferrer">quantum-theory.fmf.uni-lj.si</a></div>
 </body>
 </html>
